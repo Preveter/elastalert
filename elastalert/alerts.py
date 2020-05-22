@@ -1612,9 +1612,13 @@ class TelegramAlerter(Alerter):
         self.telegram_proxy = self.rule.get('telegram_proxy', None)
         self.telegram_proxy_login = self.rule.get('telegram_proxy_login', None)
         self.telegram_proxy_password = self.rule.get('telegram_proxy_pass', None)
+        self.telegram_escape_body = self.rule.get('telegram_escape_body', True)
 
     def alert(self, matches):
-        body = '⚠ *%s* ⚠ ```\n' % (self.create_title(matches))
+        if self.telegram_escape_body:
+            body = '⚠ *%s* ⚠ ```\n' % (self.create_title(matches))
+        else:
+            body = '⚠ *%s* ⚠\n' % (self.create_title(matches))
         for match in matches:
             body += str(BasicMatchString(self.rule, match))
             # Separate text of aggregated alerts with dashes
@@ -1622,7 +1626,8 @@ class TelegramAlerter(Alerter):
                 body += '\n----------------------------------------\n'
         if len(body) > 4095:
             body = body[0:4000] + "\n⚠ *message was cropped according to telegram limits!* ⚠"
-        body += ' ```'
+        if self.telegram_escape_body:
+            body += ' ```'
 
         headers = {'content-type': 'application/json'}
         # set https proxy, if it was provided

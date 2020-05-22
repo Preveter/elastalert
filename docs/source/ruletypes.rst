@@ -1842,6 +1842,9 @@ Optional:
 
 ``telegram_proxy``: By default ElastAlert will not use a network proxy to send notifications to Telegram. Set this option using ``hostname:port`` if you need to use a proxy.
 
+``telegram_escape_body``: Telegram refuses messages with invalid markdown. As soon as alert body may contain markdown syntax specific chars ElastAlert wraps alert body into the block of code. Set this option to ``false`` if you want to send alerts with rich body and if you want to handle this situations on your own. The default is true.
+
+
 GoogleChat
 ~~~~~~~~~~
 GoogleChat alerter will send a notification to a predefined GoogleChat channel. The body of the notification is formatted the same as with other alerters.
