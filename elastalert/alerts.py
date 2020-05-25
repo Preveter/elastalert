@@ -1645,6 +1645,20 @@ class TelegramAlerter(Alerter):
             warnings.resetwarnings()
             response.raise_for_status()
         except RequestException as e:
+            error_body = "⚠ *Error sending alert* ⚠\n"
+            if e.response:
+                error_body += "Details: `%s`" % ("" if e.response is None else e.response.text,)
+            error_payload = {
+                'chat_id': self.telegram_room_id,
+                'text': error_body,
+                'parse_mode': 'markdown',
+                'disable_web_page_preview': True
+            }
+            try:
+                requests.post(self.url, data=json.dumps(error_payload, cls=DateTimeEncoder),
+                              headers=headers, proxies=proxies, auth=auth)
+            except RequestException:
+                pass
             raise EAException("Error posting to Telegram: %s. Details: %s" % (e, "" if e.response is None else e.response.text))
 
         elastalert_logger.info(
