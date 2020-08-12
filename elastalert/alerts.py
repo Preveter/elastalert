@@ -149,6 +149,7 @@ class BasicMatchString(object):
                 self._add_top_counts()
             if self.rule.get('alert_text_type') != 'exclude_fields':
                 self._add_match_items()
+            self._ensure_new_line()
         return self.text
 
 
@@ -256,7 +257,7 @@ class Alerter(object):
                 body += str(BasicMatchString(self.rule, match))
                 # Separate text of aggregated alerts with dashes
                 if len(matches) > 1:
-                    body += '\n----------------------------------------\n'
+                    body += '----------------------------------------\n'
         return body
 
     def get_aggregation_summary_text__maximum_width(self):
@@ -848,7 +849,7 @@ class JiraAlerter(Alerter):
             for match in matches:
                 body += str(JiraFormattedMatchString(self.rule, match))
                 if len(matches) > 1:
-                    body += '\n----------------------------------------\n'
+                    body += '----------------------------------------\n'
         return body
 
     def get_aggregation_summary_text(self, matches):
@@ -1623,7 +1624,7 @@ class TelegramAlerter(Alerter):
             body += str(BasicMatchString(self.rule, match))
             # Separate text of aggregated alerts with dashes
             if len(matches) > 1:
-                body += '\n----------------------------------------\n'
+                body += '----------------------------------------\n'
         if len(body) > 4095:
             body = body[0:4000] + "\n⚠ *message was cropped according to telegram limits!* ⚠"
         if self.telegram_escape_body:
