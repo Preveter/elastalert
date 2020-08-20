@@ -1646,21 +1646,28 @@ class TelegramAlerter(Alerter):
             warnings.resetwarnings()
             response.raise_for_status()
         except RequestException as e:
-            error_body = "⚠ *Error sending alert* ⚠\n"
+            error_body = "⚠ Error sending alert ⚠\n"
             if e.response:
-                error_body += "Details: `%s`" % ("" if e.response is None else e.response.text,)
+                error_body += "TG API response: %s\n" % (("" if e.response is None else e.response.text),)
+            error_body += "Here is the original message w/o formatting:\n\n"
+            error_body += body
+            if len(error_body) > 4095:
+                error_body = error_body[0:4000] + "\n⚠ error message was cropped according to telegram limits! ⚠"
             error_payload = {
                 'chat_id': self.telegram_room_id,
                 'text': error_body,
-                'parse_mode': 'markdown',
                 'disable_web_page_preview': True
             }
             try:
                 requests.post(self.url, data=json.dumps(error_payload, cls=DateTimeEncoder),
                               headers=headers, proxies=proxies, auth=auth)
-            except RequestException:
-                pass
-            raise EAException("Error posting to Telegram: %s. Details: %s" % (e, "" if e.response is None else e.response.text))
+            except RequestException as e2:
+                raise EAException(
+                    "Error posting to Telegram: %s. Details: %s" % (e2, "" if e2.response is None else e2.response.text)
+                )
+            raise EAException(
+                "Error posting to Telegram: %s. Details: %s" % (e, "" if e.response is None else e.response.text)
+            )
 
         elastalert_logger.info(
             "Alert sent to Telegram room %s" % self.telegram_room_id)
