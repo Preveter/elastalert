@@ -1646,10 +1646,8 @@ class TelegramAlerter(Alerter):
             warnings.resetwarnings()
             response.raise_for_status()
         except RequestException as e:
-            error_body = "⚠ Error sending alert ⚠\n"
-            if e.response:
-                error_body += "TG API response: %s\n" % (("" if e.response is None else e.response.text),)
-            error_body += "Here is the original message w/o formatting:\n\n"
+            error_body = "⚠ Error sending alert ⚠\n" \
+                         "Check logs for more information. Here is the original message w/o formatting:\n\n"
             error_body += body
             if len(error_body) > 4095:
                 error_body = error_body[0:4000] + "\n⚠ error message was cropped according to telegram limits! ⚠"
