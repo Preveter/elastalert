@@ -1646,6 +1646,10 @@ class TelegramAlerter(Alerter):
             warnings.resetwarnings()
             response.raise_for_status()
         except RequestException as e:
+            elastalert_logger.warning(
+                "Error posting to Telegram: %s. Details: %s. Resending message without formatting"
+                % (e, "" if e.response is None else e.response.text)
+            )
             error_body = "⚠ Error sending alert ⚠\n" \
                          "Check logs for more information. Here is the original message w/o formatting:\n\n"
             error_body += body
@@ -1661,11 +1665,9 @@ class TelegramAlerter(Alerter):
                               headers=headers, proxies=proxies, auth=auth)
             except RequestException as e2:
                 raise EAException(
-                    "Error posting to Telegram: %s. Details: %s" % (e2, "" if e2.response is None else e2.response.text)
+                    "Error sending unformatted message to Telegram: %s. Details: %s"
+                    % (e2, "" if e2.response is None else e2.response.text)
                 )
-            raise EAException(
-                "Error posting to Telegram: %s. Details: %s" % (e, "" if e.response is None else e.response.text)
-            )
 
         elastalert_logger.info(
             "Alert sent to Telegram room %s" % self.telegram_room_id)
